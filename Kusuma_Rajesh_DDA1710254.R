@@ -147,7 +147,7 @@ boxplot(credit_merged_approved$Income)
 barplot(table(credit_merged_approved$Gender))
 count(distinct(credit_merged_approved), Gender)
 #count
-#   2
+# 2
 # F 16506
 # M 53358
 # Removing non Gender values
