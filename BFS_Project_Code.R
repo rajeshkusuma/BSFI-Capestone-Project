@@ -60,7 +60,7 @@ Duplicate_cred_app_id_rec <- credit_burea[duplicated(credit_burea$Application.ID
 #671989187
 
 # Removing duplicates
-demographic<- demographic[!duplicated(demographic$Application.ID),]
+demographic <- demographic[!duplicated(demographic$Application.ID),]
 credit_burea <- credit_burea[!duplicated(credit_burea$Application.ID),] 
 
 # Merging the two datasets.
@@ -70,7 +70,7 @@ credit_merged <- merge(demographic, credit_burea, by.x =  "Application.ID", by.y
 # Check if performance indicators from both data sets are same
 credit_merged[which(credit_merged$Performance.Tag.x != credit_merged$Performance.Tag.y),]
 
-credit_merged
+# credit_merged
 # Now that we have merged the two file, let look at the following data quality issues. 
 # 1. Missing Values
 # 2. Data quality issues
