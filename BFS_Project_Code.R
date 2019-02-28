@@ -80,7 +80,7 @@ credit_merged[which(credit_merged$Performance.Tag.x != credit_merged$Performance
 
 # MISSING VALUES TREATMENT:
 # Lets check how many missing values each row has
-lapply(credit_merged, function(x) sum(is.na(x)))
+sapply(credit_merged, function(x) sum(is.na(x)))
 
 # These are all the customers with NA values in our target variable. 
 View(credit_merged[is.na(credit_merged$Performance.Tag.y), ])
@@ -113,7 +113,7 @@ lapply(credit_merged_approved, function(x) sum(is.na(x)))
 lapply(credit_merged_approved, function(x) summary(x))
 
 # Removing one negative record of Age i.e.-3
-credit_merged_approved<- dplyr::filter(credit_merged_approved,credit_merged_approved$Age != -3)
+credit_merged_approved <- dplyr::filter(credit_merged_approved,credit_merged_approved$Age != -3)
 
 # Found 99 records that have -ve income, so convert them into +ve value
 credit_merged_approved$Income <- ifelse(credit_merged_approved$Income == -0.50,0.50,credit_merged_approved$Income)
