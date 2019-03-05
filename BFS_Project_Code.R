@@ -422,7 +422,7 @@ D_Logistic_model_1 = glm(Performance.Tag.y ~ ., data = train_demo_lr, family = "
 summary(D_Logistic_model_1)
 
 # Stepwise selection
-D_Logistic_model_2 <- MASS::stepAIC(D_Logistic_model_1, direction = "both")
+# D_Logistic_model_2 <- MASS::stepAIC(D_Logistic_model_1, direction = "both")
 # Step:  AIC = 12816.93
 
 D_Logistic_model_3 <- glm(Performance.Tag.y ~ Age + No.of.dependents + Income + No.of.months.in.current.company + 
@@ -456,7 +456,7 @@ car::vif(D_Logistic_model_4)
 numeric_columns <- as.numeric(which(sapply(credit_merged_approved, function(x) class(x)) == "numeric"))
 names(credit_merged_approved[-numeric_columns])
 
-credit_merged_approved_cat <-credit_merged_approved[, c("Gender",
+credit_merged_approved_cat <- credit_merged_approved[, c("Gender",
                                                         "Marital.Status..at.the.time.of.application.",
                                                         "Education",
                                                         "Profession",
@@ -466,7 +466,7 @@ credit_merged_approved_cat <-credit_merged_approved[, c("Gender",
 # creating dummy variables for factor attributes
 dummies <- data.frame(sapply(credit_merged_approved_cat, 
                             function(x) data.frame(model.matrix(~x-1,
-                                data =credit_merged_approved_cat))[,-1]))
+                                data = credit_merged_approved_cat))[,-1]))
 
 credit_merged_approved_num <- credit_merged_approved[numeric_columns]
 
@@ -875,11 +875,12 @@ plot_grid(
 
 #----------------------------------------------------------------------------------------------    
 # Gain Chart:
-ggplot(default_decile, aes(x = bucket ,y = Gain))+
-  geom_line(color="blue")+ 
-  geom_point()+
+ggplot(default_decile, aes(x = bucket ,y = Gain)) +
+  geom_line(color = "blue") + 
+  geom_point() +
   ggtitle("Gain Chart") +
-  geom_text(hjust = 0, nudge_x = 0.1,aes(label  = round(Gain,digits = 2) , y  = Gain),size = 3,color="red") 
+  geom_text(hjust = 0, nudge_x = 0.1,aes(label  = round(Gain,digits = 2) , y  = Gain),
+            size = 3,color = "red") 
 
 # Observations: 
 # gain for a given model is 70% by the 5th decile
@@ -889,11 +890,12 @@ ggplot(default_decile, aes(x = bucket ,y = Gain))+
 
 #----------------------------------------------------------------------------------------------    
 # Lift Chart:
-ggplot(default_decile, aes(x = bucket ,y = Cumlift))+ 
-  geom_line(color="red") +
+ggplot(default_decile, aes(x = bucket ,y = Cumlift)) + 
+  geom_line(color = "red") +
   geom_point() +
-  ggtitle("Lift Chart")+
-  geom_text(hjust = 0, nudge_x = 0.1,aes(label = round(Cumlift,digits = 2), y  = Cumlift),size = 3,color="red") 
+  ggtitle("Lift Chart") +
+  geom_text(hjust = 0, nudge_x = 0.1,aes(label = round(Cumlift,digits = 2), y  = Cumlift),
+            size = 3,color = "red") 
 
 # Observations: 
 # the model catches 1.59 times more drafulters than
@@ -904,7 +906,7 @@ ggplot(default_decile, aes(x = bucket ,y = Cumlift))+
 library(pROC)
 
 roc_lr <- roc(actual_response, predicted_response)
-lines(roc_rf, col = "blue")
+lines(roc_lr, col = "blue")
 
 # AUC 
 auc(roc_lr) 
@@ -933,11 +935,11 @@ Random_df$Performance.Tag.y <- as.factor(Random_df$Performance.Tag.y)
 # Splitting the data into train_rf and test_rf
 set.seed(101)
 
-Random_df$Performance.Tag.y <- as.factor(ifelse(Random_df$Performance.Tag.y==1,"yes","no"))
+Random_df$Performance.Tag.y <- as.factor(ifelse(Random_df$Performance.Tag.y == 1,"yes","no"))
 
 split_indices = sample.split(Random_df$Performance.Tag.y, SplitRatio = 0.5)
 
-train_rf <- SMOTE(form =Performance.Tag.y ~ .,data = Random_df[split_indices, ] ,perc.over = 200,perc.under = 200)
+train_rf <- SMOTE(form = Performance.Tag.y ~ .,data = Random_df[split_indices, ] ,perc.over = 200,perc.under = 200)
 summary(train_rf$Performance.Tag.y)
 
 test_rf <- Random_df[!split_indices, ]
@@ -991,16 +993,17 @@ for(i in 1:100)
 
 # plotting cutoffs
 
-plot(s, OUT_rf[,1],xlab="Cutoff",ylab="Value",cex.lab = 1.5,cex.axis = 1.5,ylim = c(0,1),type="l",lwd = 2,axes = FALSE,col = 2)
+plot(s, OUT_rf[,1],xlab = "Cutoff",ylab = "Value",cex.lab = 1.5,cex.axis = 1.5,
+     ylim = c(0,1),type = "l",lwd = 2, axes = FALSE, col = 2)
 axis(1,seq(0,1,length = 5),seq(0,1,length = 5),cex.lab = 1.5)
 axis(2,seq(0,1,length = 5),seq(0,1,length = 5),cex.lab = 1.5)
-lines(s,OUT_rf[,2],col="darkgreen",lwd = 2)
-lines(s,OUT_rf[,3],col = 4,lwd = 2)
+lines(s,OUT_rf[,2], col = "darkgreen",lwd = 2)
+lines(s,OUT_rf[,3], col = 4,lwd = 2)
 box()
 
 legend(0,.50,col = c(2,"darkgreen",4,"darkred"),lwd = c(2,2,2,2),c("Sensitivity","Specificity","Accuracy"))
 
-cutoff_rf <- s[which(abs(OUT_rf[,1]-OUT_rf[,2])<0.4)]
+cutoff_rf <- s[which(abs(OUT_rf[,1] - OUT_rf[,2]) < 0.4)]
 cutoff_rf
 
 #---------------------------------------------------------------------------------------
@@ -1044,8 +1047,8 @@ RF_actual_response <- (ifelse(RF_actual_response == "yes", 1, 0))
 
 # For the prediction function to work the "predicted_response" and "actual_response"
 # should only contain values 1 and 0.
-pred_object_test<- prediction(RF_predicted_response, RF_actual_response)
-performance_measures_test<- performance(pred_object_test, "tpr", "fpr")
+pred_object_test <- prediction(RF_predicted_response, RF_actual_response)
+performance_measures_test <- performance(pred_object_test, "tpr", "fpr")
 
 ks_table_test <- attr(performance_measures_test, "y.values")[[1]] - 
   (attr(performance_measures_test, "x.values")[[1]])
@@ -1091,11 +1094,12 @@ plot_grid(
 
 #----------------------------------------------------------------------------------------------    
 # Gain Chart:
-ggplot(RF_decile, aes(x = bucket ,y = Gain))+
-  geom_line(color="blue")+ 
-  geom_point()+
+ggplot(RF_decile, aes(x = bucket ,y = Gain)) +
+  geom_line(color = "blue") + 
+  geom_point() +
   ggtitle("Gain Chart") +
-  geom_text(hjust = 0, nudge_x = 0.1,aes(label  = round(Gain,digits = 2) , y  = Gain),size = 3,color="red") 
+  geom_text(hjust = 0, nudge_x = 0.1,aes(label  = round(Gain,digits = 2) , y  = Gain),
+            size = 3,color = "red") 
 
 # Observations: 
 # gain for a given model is 65% by the 5th decile
@@ -1105,11 +1109,12 @@ ggplot(RF_decile, aes(x = bucket ,y = Gain))+
 
 #----------------------------------------------------------------------------------------------    
 # Lift Chart:
-ggplot(RF_decile, aes(x = bucket ,y = Cumlift))+ 
-  geom_line(color="red") +
+ggplot(RF_decile, aes(x = bucket ,y = Cumlift)) + 
+  geom_line(color = "red") +
   geom_point() +
-  ggtitle("Lift Chart")+
-  geom_text(hjust = 0, nudge_x = 0.1,aes(label = round(Cumlift,digits = 2), y  = Cumlift),size = 3,color="red") 
+  ggtitle("Lift Chart") +
+  geom_text(hjust = 0, nudge_x = 0.1,aes(label = round(Cumlift,digits = 2), y  = Cumlift),
+            size = 3,color = "red") 
 
 # Observations: 
 # the model catches 1.56 times more drafulters than
@@ -1152,7 +1157,7 @@ set.seed(100)
 dt_indices = sample.split(Decision_df$Performance.Tag.y, SplitRatio = 0.5)
 
 # Training data set 
-dt_train <- SMOTE(form =Performance.Tag.y ~ .,
+dt_train <- SMOTE(form = Performance.Tag.y ~ .,
                   data = Decision_df[dt_indices,],
                   perc.over = 200,perc.under = 200)
 summary(dt_train$Performance.Tag.y)
@@ -1168,7 +1173,7 @@ summary(dt_test$Performance.Tag.y)
 library(rattle)
 library(rpart.plot)
 
-DT_credit_model1 <-  rpart(Performance.Tag.y ~ ., data = dt_train, method= "class", 
+DT_credit_model1 <-  rpart(Performance.Tag.y ~ ., data = dt_train, method = "class", 
                            control = rpart.control(minsplit = 65, cp = 0.001))
 rpart.plot(DT_credit_model1)
 fancyRpartPlot(DT_credit_model1)
@@ -1178,7 +1183,7 @@ fancyRpartPlot(DT_credit_model1)
 
 #---------------------------------------------------------    
 # Increasing the minsplit two fold to 500
-DT_credit_model2 <-  rpart(Performance.Tag.y ~., data = dt_train, method= "class",
+DT_credit_model2 <-  rpart(Performance.Tag.y ~., data = dt_train, method = "class",
                            control = rpart.control(minsplit = 500, cp = 0.001))
 
 rpart.plot(DT_credit_model2)
@@ -1190,7 +1195,7 @@ DT_credit_model2$variable.importance
 
 #---------------------------------------------------------    
 # We can further simplify the tree by increasing minsplit
-DT_credit_model3 <-  rpart(Performance.Tag.y ~., data = dt_train, method= "class",
+DT_credit_model3 <-  rpart(Performance.Tag.y ~., data = dt_train, method = "class",
                            control = rpart.control(minsplit = 800, cp = 0.001))
 rpart.plot(DT_credit_model3)
 fancyRpartPlot(DT_credit_model3)
@@ -1200,7 +1205,7 @@ DT_credit_model3$variable.importance
 
 #---------------------------------------------------------    
 # We can further simplify the tree by increasing minsplit
-DT_credit_model4 <-  rpart(Performance.Tag.y ~., data = dt_train, method= "class",
+DT_credit_model4 <-  rpart(Performance.Tag.y ~., data = dt_train, method = "class",
                            control = rpart.control(minsplit = 1500, cp = 0.001))
 rpart.plot(DT_credit_model4)
 fancyRpartPlot(DT_credit_model4)
@@ -1210,7 +1215,7 @@ DT_credit_model4$variable.importance
 
 #---------------------------------------------------------    
 # We can further simplify the tree by increasing minsplit
-DT_credit_model5 <-  rpart(Performance.Tag.y ~., data = dt_train, method= "class",
+DT_credit_model5 <-  rpart(Performance.Tag.y ~., data = dt_train, method = "class",
                            control = rpart.control(minsplit = 1800, cp = 0.001))
 
 rpart.plot(DT_credit_model5)
@@ -1274,8 +1279,8 @@ DT5_actual_response_KS    <- ifelse(DT5_actual_response == "yes",1,0)
 
 # For the prediction function to work the "predicted_response" and "actual_response"
 # should only contain values 1 and 0.
-pred_object_test<- prediction(DT5_predicted_response_KS, DT5_actual_response_KS)
-performance_measures_test<- performance(pred_object_test, "tpr", "fpr")
+pred_object_test <- prediction(DT5_predicted_response_KS, DT5_actual_response_KS)
+performance_measures_test <- performance(pred_object_test, "tpr", "fpr")
 
 ks_table_test <- attr(performance_measures_test, "y.values")[[1]] - 
   (attr(performance_measures_test, "x.values")[[1]])
@@ -1321,11 +1326,12 @@ plot_grid(
 
 #----------------------------------------------------------------------------------------------    
 # Gain Chart:
-ggplot(DT_Decile, aes(x = bucket ,y = Gain))+
-  geom_line(color="blue")+ 
-  geom_point()+
+ggplot(DT_Decile, aes(x = bucket ,y = Gain)) +
+  geom_line(color = "blue") + 
+  geom_point() +
   ggtitle("Gain Chart") +
-  geom_text(hjust = 0, nudge_x = 0.1,aes(label  = round(Gain,digits = 2) , y  = Gain),size = 3,color="red") 
+  geom_text(hjust = 0, nudge_x = 0.1,aes(label  = round(Gain,digits = 2) , y  = Gain),
+            size = 3,color = "red") 
 
 # Observations: 
 # gain for a given model is 55% by the 5th decile
@@ -1335,11 +1341,12 @@ ggplot(DT_Decile, aes(x = bucket ,y = Gain))+
 
 #----------------------------------------------------------------------------------------------    
 # Lift Chart:
-ggplot(DT_Decile, aes(x = bucket ,y = Cumlift))+ 
-  geom_line(color="red") +
+ggplot(DT_Decile, aes(x = bucket ,y = Cumlift)) + 
+  geom_line(color = "red") +
   geom_point() +
-  ggtitle("Lift Chart")+
-  geom_text(hjust = 0, nudge_x = 0.1,aes(label = round(Cumlift,digits = 2), y  = Cumlift),size = 3,color="red") 
+  ggtitle("Lift Chart") +
+  geom_text(hjust = 0, nudge_x = 0.1,aes(label = round(Cumlift,digits = 2), y  = Cumlift),
+            size = 3,color = "red") 
 
 # Observations: 
 # the model catches 1.56 times more drafulters than
@@ -1378,7 +1385,6 @@ performance_comparision_matrix[6,] <- c(auc(roc_rf), auc(roc_logit), auc(roc_dt)
 rownames(performance_comparision_matrix)[5] <- "KS_Statistic"
 rownames(performance_comparision_matrix)[6] <- "AUC"
 
----------------------------------------------------------------------------    
 #Decison tree
 #Accuarcy    : 0.8645  
 #Sensitivity :0.217391 
@@ -1452,7 +1458,7 @@ quantile(test_lr$predicted_prob,seq(0,1,0.01))
 # 1 - p = the probability of an default not happening
 # Hence add a column for probability of non defaulters i.e. 1-P
 
-test_lr$Predicted_prob_nondefault <- 1- test_lr$predicted_prob
+test_lr$Predicted_prob_nondefault <- 1 - test_lr$predicted_prob
 summary(test_lr$Predicted_prob_nondefault)
 boxplot(test_lr$Predicted_prob_nondefault)
 # Summary of non_defaulte\success score
@@ -1487,7 +1493,7 @@ sc_df <- test_lr
 bins = woebin(sc_df, "Performance.Tag.y")
 dt_woe = woebin_ply(sc_df, bins)
 
-m_step = step(logistic_final, direction="both", trace = FALSE)
+m_step = step(logistic_final, direction = "both", trace = FALSE)
 m = eval(m_step$call)
 
 card = scorecard(bins, logistic_final,points0 = 400, odds0 = 1/9, pdo = 20, basepoints_eq0 = FALSE) 
@@ -1549,21 +1555,21 @@ boxplot(score_final$final_score2)
 # 75.94  508.69  633.27  603.53  714.88  875.42
 
 # using another simple formula using offset
-Factor = 20 / log (2)
+Factor = 20 / log(2)
 Factor
 # 28.8539 
-Offset = 400 - Factor * log (10)
+Offset = 400 - Factor * log(10)
 Offset
 # 333.5614
 
-score_final$final_score3 <- Offset + score_final$Predicted_prob_nondefault *500
+score_final$final_score3 <- Offset + score_final$Predicted_prob_nondefault * 500
 summary(score_final$final_score3)
 boxplot(score_final$final_score3)
 
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 371.5   587.9   650.2   635.3   691.0   771.3 
 
-cut_off_score <- score_final[score_final$predicted_prob<=0.4158586,]
+cut_off_score <- score_final[score_final$predicted_prob <= 0.4158586,]
 cut_off_score <- cut_off_score[order(cut_off_score$predicted_prob, decreasing = T), ]
 
 cut_off_score[1,]$score        # 355         
@@ -1582,8 +1588,8 @@ cut_off_score[1,]$final_score3 # 625.6451
 # Assumption : Customer is a good customer if all values are Zero
 newdata <- data.frame(
                       No.of.months.in.current.residence = 0 ,
-                      No.of.months.in.current.company =0 ,
-                      No.of.times.30.DPD.or.worse.in.last.6.months =0,
+                      No.of.months.in.current.company = 0 ,
+                      No.of.times.30.DPD.or.worse.in.last.6.months = 0,
                       Avgas.CC.Utilization.in.last.12.months = 0,
                       Total.No.of.Trades = 0,
                       Presence.of.open.home.loan = 0,
@@ -1617,13 +1623,13 @@ logistic_final <- Logistic_model_15
 predicted_defalut <- predict(logistic_final, newdata = credit_merged_rejected, type = "response")
 summary(predicted_defalut)
 predicted_defalut <- predicted_defalut[which(!is.na(predicted_defalut))]
-predict_non_default <- 1-predicted_defalut
-score <- Offset +  predict_non_default *500
+predict_non_default <- 1 - predicted_defalut
+score <- Offset +  predict_non_default * 500
 summary(score)
 boxplot(score)
 quantile(score)
 
-(length(predicted_defalut)-sum(score>=625.6451))/(length(predicted_defalut)+35)
+(length(predicted_defalut) - sum(score >= 625.6451))/(length(predicted_defalut) + 35)
 
 # The value 35 in the  denominator is added as there are 35 NA values because of data issues. 
 # Therefore, our scoring model work with 96 % accuracy on the rejected population. 
