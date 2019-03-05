@@ -27,6 +27,7 @@
 # Demographic data
 library(data.table)
 library(dplyr)
+library(DMwR)
 
 # Loading the data files.
 # 1. Demographics data: This file contains all the demographic information of the customer.
@@ -83,7 +84,7 @@ credit_merged[which(credit_merged$Performance.Tag.x != credit_merged$Performance
 sapply(credit_merged, function(x) sum(is.na(x)))
 
 # These are all the customers with NA values in our target variable. 
-View(credit_merged[is.na(credit_merged$Performance.Tag.y), ])
+(credit_merged[is.na(credit_merged$Performance.Tag.y), ])
 
 # Assumption : If performanance variabes are not present, then those records are not appoved catagory
 # hence consider only approved records for the analysis
@@ -266,27 +267,27 @@ library(cowplot)
 
 # Getting the plots for the WOE for the numeric data.
 WOE_numeric$Summary$Variable
-plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[1:5], same_scale = FALSE)
-plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[5:10], same_scale = FALSE)
-plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[10:15], same_scale = FALSE)
-plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[15:20], same_scale = FALSE)
+plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[1:5], same_scales = FALSE)
+plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[5:10], same_scales = FALSE)
+plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[10:15], same_scales = FALSE)
+plot_infotables(WOE_numeric, WOE_numeric$Summary$Variable[15:20], same_scales = FALSE)
 
 
 # Getting the plots for the WOE for the categorical data.
 WOE_categorical$Summary$Variable
-plot_infotables(WOE_categorical, WOE_categorical$Summary$Variable[1:3], same_scale = FALSE)
-plot_infotables(WOE_categorical, WOE_categorical$Summary$Variable[4:6], same_scale = FALSE)
+plot_infotables(WOE_categorical, WOE_categorical$Summary$Variable[1:3], same_scales = FALSE)
+plot_infotables(WOE_categorical, WOE_categorical$Summary$Variable[4:6], same_scales = FALSE)
 
 #-----------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------
 library(ggplot2)
-library("Hmisc")
+library(Hmisc)
 library(cowplot)
 library(ellipse)
 library(corrplot)
 
 # We are going to use this theme throught the plotting exercise. 
-bar_theme1<- theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5), legend.position = "left") 
+bar_theme1 <- theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5), legend.position = "left") 
 
 # Generating the plot for Woe variables.
 WOE_numeric
@@ -301,11 +302,11 @@ WOE_categorical_summary$IV <- round(WOE_categorical_summary$IV, 3)
 
 ggplot(data = WOE_numeric_summary, aes(x = reorder(Variable, -IV), y = IV)) +
   geom_bar(stat = "identity", fill = "orange") +  geom_hline(aes( yintercept = 0.0015)) +
-  geom_text(aes(label = IV)) + labs(xlab = "Variables") +bar_theme1 + ggtitle("Information Value Contineous Variables")
+  geom_text(aes(label = IV)) + labs(xlab = "Variables") + bar_theme1 + ggtitle("Information Value Contineous Variables")
 
 ggplot(data = WOE_categorical_summary, aes(x = reorder(Variable, -IV), y = IV)) +
   geom_bar(stat = "identity", fill = "orange") + geom_hline(aes( yintercept = 0.0015)) +
-  geom_text(aes(label = IV)) + labs(xlab = "Variables") +bar_theme1 + ggtitle("Information Value categorical Variables")
+  geom_text(aes(label = IV)) + labs(xlab = "Variables") + bar_theme1 + ggtitle("Information Value categorical Variables")
 
 #------------------------------------------------------------------------------------------------------
 #------------------------- Bivariate and Multivariate Analysis:---------------------------------------
@@ -359,11 +360,11 @@ plot_grid(plot1 + geom_boxplot
 
 correlation_matrix <- cor(subset_credit[,c(head(WOE_numeric$Summary$Variable, 10), "Performance.Tag.y")])
 #write.csv(correlation_matrix, "credit_data_corelation.csv")
-View(correlation_matrix)
+(correlation_matrix)
 
 # Calculating the event rate of the defaulters.
 sum(credit_merged_approved$Performance.Tag.y)/nrow(credit_merged_approved)
-# Default rate is 4%?
+# Default rate is 4%.
 
 ls()
 
@@ -385,7 +386,7 @@ credit_demographic_cat <- credit_demographic[categorical_index]
 credit_demographic <- credit_demographic[-categorical_index]
 
 # creating dummy variables for factor attributes
-dummies<- data.frame(sapply(credit_demographic_cat, 
+dummies <- data.frame(sapply(credit_demographic_cat, 
                             function(x) data.frame(model.matrix(~x-1,data = credit_demographic_cat))[,-1]))
 
 credit_demographic <- cbind(credit_demographic,dummies)
@@ -408,12 +409,12 @@ str(credit_demographic)
 # splitting the data between train and test
 set.seed(100)
 
-indices = sample.split(credit_demographic$Performance.Tag.y, SplitRatio = 0.5)
+indices = caTools::sample.split(credit_demographic$Performance.Tag.y, SplitRatio = 0.5)
 
-train_demo_lr <- SMOTE(form =Performance.Tag.y ~ .,data = credit_demographic[indices,], perc.over = 200, perc.under = 200)
+train_demo_lr <- SMOTE(form = Performance.Tag.y ~ .,data = credit_demographic[indices,], perc.over = 200, perc.under = 200)
 summary(train_demo_lr$Performance.Tag.y)
 
-test_demo_lr = credit_approved_final[!(indices),]
+test_demo_lr = credit_demographic[!(indices),]
 summary(test_demo_lr$Performance.Tag.y)
 
 #Initial model
@@ -421,14 +422,14 @@ D_Logistic_model_1 = glm(Performance.Tag.y ~ ., data = train_demo_lr, family = "
 summary(D_Logistic_model_1)
 
 # Stepwise selection
-D_Logistic_model_2 <- stepAIC(D_Logistic_model_1, direction="both")
+D_Logistic_model_2 <- MASS::stepAIC(D_Logistic_model_1, direction = "both")
 # Step:  AIC = 12816.93
 
 D_Logistic_model_3 <- glm(Performance.Tag.y ~ Age + No.of.dependents + Income + No.of.months.in.current.company + 
                             Gender + Education.xProfessional + Profession.xSE + Type.of.residence.xOthers,
                           data = train_demo_lr, family = "binomial")
 summary(D_Logistic_model_3)
-vif(D_Logistic_model_3)
+car::vif(D_Logistic_model_3)
 
 # No.of.months.in.current.residence
 D_Logistic_model_4 <- glm(Performance.Tag.y ~ Age + No.of.dependents + Income + No.of.months.in.current.company + 
@@ -436,7 +437,7 @@ D_Logistic_model_4 <- glm(Performance.Tag.y ~ Age + No.of.dependents + Income + 
                             Type.of.residence.xOthers + No.of.months.in.current.residence,
                           data = train_demo_lr, family = "binomial")
 summary(D_Logistic_model_4)
-vif(D_Logistic_model_4)
+car::vif(D_Logistic_model_4)
 # Observation: 
 # Age, Income, No.of.months.in.current.company, Profession.xSE 
 # Are some of the significant variables from the demographic data.
@@ -525,7 +526,7 @@ set.seed(100)
 
 indices = sample.split(credit_approved_final$Performance.Tag.y, SplitRatio = 0.5)
 
-train_lr <- SMOTE(form =Performance.Tag.y ~ .,data = credit_approved_final[indices,], 
+train_lr <- SMOTE(form = Performance.Tag.y ~ .,data = credit_approved_final[indices,], 
                   perc.over = 200, perc.under = 200)
 summary(train_lr$Performance.Tag.y)
 
@@ -599,6 +600,7 @@ Logistic_model_5 <- glm(Performance.Tag.y ~ Age + Income + No.of.months.in.curre
                           Education.xProfessional + Type.of.residence.xLiving.with.Parents + 
                           Type.of.residence.xOthers + Type.of.residence.xOwned +  
                           Presence.of.open.auto.loan, family = "binomial", data = train_lr)
+
 
 summary(Logistic_model_5)
 vif(Logistic_model_5)
@@ -1263,7 +1265,6 @@ DT5_performance <- c(cutoff = NA ,DT_conf$overall[1],
 #---------------------------------------------------------------------------------------------------
 # MODEL PERFORMANCE EVALUATION - DECISIOIN TREE
 #---------------------------------------------------------------------------------------------------
-#--------------------------------- KS- STATISTIC -----------------------------------------------
 
 library(ROCR)
 
